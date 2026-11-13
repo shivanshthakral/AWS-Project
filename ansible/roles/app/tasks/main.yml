@@ -81,5 +81,6 @@
 - name: Start Flask app service
   systemd:
     name: infra-monitor
+    daemon_reload: true
     enabled: true
     state: started
