@@ -1,0 +1,38 @@
+---
+- name: Install CloudWatch agent on Debian family
+  apt:
+    deb: https://amazoncloudwatch-agent.s3.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+  when: ansible_os_family == "Debian"
+
+- name: Install CloudWatch agent on RedHat family
+  yum:
+    name: https://amazoncloudwatch-agent.s3.amazonaws.com/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+    state: present
+    disable_gpg_check: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure CloudWatch config directory exists
+  file:
+    path: /opt/aws/amazon-cloudwatch-agent/etc
+    state: directory
+    mode: "0755"
+
+- name: Deploy CloudWatch agent config for Flask logs
+  template:
+    src: amazon-cloudwatch-agent.json.j2
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    mode: "0644"
+  notify: restart cloudwatch agent
+
+- name: Load and start CloudWatch agent configuration
+  command: >-
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl
+    -a fetch-config -m ec2
+    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+  changed_when: false
+
+- name: Ensure CloudWatch agent is enabled and running
+  service:
+    name: amazon-cloudwatch-agent
+    state: started
+    enabled: true

@@ -1,0 +1,9 @@
+---
+- name: reload systemd
+  systemd:
+    daemon_reload: true
+
+- name: restart infra monitor
+  systemd:
+    name: infra-monitor
+    state: restarted

@@ -1,0 +1,89 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run tools/start.ps1 first}
+      MYSQL_DATABASE: infra_monitor
+      MYSQL_USER: infra_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run tools/start.ps1 first}
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  web:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - backend/.env
+    environment:
+      AWS_SDK_LOAD_CONFIG: "1"
+      AWS_EC2_METADATA_DISABLED: "true"
+      DATABASE_URL: mysql+pymysql://infra_user:${MYSQL_PASSWORD}@db:3306/infra_monitor
+    ports:
+      - "127.0.0.1:5001:5001"
+    volumes:
+      - ${AWS_CONFIG_DIR:?Run tools/start.ps1 first}:/root/.aws:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  jenkins:
+    build:
+      context: ./jenkins
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18080:8080"
+    environment:
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false -Xmx768m
+      AWS_REGION: us-east-1
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_SHARED_CREDENTIALS_FILE: /aws/credentials
+      AWS_CONFIG_FILE: /aws/config
+      JENKINS_ADMIN_ID: admin
+      PRE_CLEAR_INIT_GROOVY_D: "true"
+    secrets:
+      - jenkins_admin_password
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - .:/workspace-source:ro
+      - ./.runtime:/run/project:ro
+      - ${AWS_CONFIG_DIR}:/aws:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/login"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 60s
+
+  webhook-relay:
+    profiles: [github]
+    build:
+      context: ./jenkins/relay
+    restart: unless-stopped
+    volumes:
+      - ./.runtime:/run/project:ro
+    depends_on:
+      jenkins:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  jenkins_home:
+
+secrets:
+  jenkins_admin_password:
+    file: ./.runtime/jenkins-admin-password

@@ -1,0 +1,11 @@
+.runtime
+.git
+.aws
+**/.env
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.terraform
+**/terraform.tfstate*
+**/tfplan
+**/*.pem

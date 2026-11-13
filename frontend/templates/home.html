@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Home | AWS Infrastructure Monitor{% endblock %}
+
+{% block content %}
+<section class="home-page">
+    <section class="hero">
+        <h1>AWS Infrastructure Monitor</h1>
+        <p>Production-ready cloud visibility for your EC2 environment with secure access and a deployment workflow built for teams.</p>
+        <a class="btn" href="{{ url_for('auth.login_page') }}">Login to Dashboard</a>
+    </section>
+
+    <section class="features-grid">
+        <article class="feature-card">
+            <h3>Live EC2 Monitoring</h3>
+            <p>Track instance IDs, states, public IPs, and instance types in real time from a centralized dashboard.</p>
+        </article>
+        <article class="feature-card">
+            <h3>Secure Authentication</h3>
+            <p>Role-aware session-based access with protected routes so only authenticated users can view infrastructure data.</p>
+        </article>
+        <article class="feature-card">
+            <h3>Automated Deployment</h3>
+            <p>Provision and deploy through Terraform, Ansible, and Jenkins to move from source to running infrastructure fast.</p>
+        </article>
+    </section>
+</section>
+{% endblock %}

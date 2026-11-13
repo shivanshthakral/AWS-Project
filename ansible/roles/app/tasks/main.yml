@@ -1,0 +1,85 @@
+---
+- name: Ensure infra-monitor group exists
+  group:
+    name: infra-monitor
+    state: present
+
+- name: Ensure infra-monitor service user exists
+  user:
+    name: infra-monitor
+    group: infra-monitor
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Ensure application directories exist
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "/opt/infra-monitor", owner: "infra-monitor", group: "infra-monitor", mode: "0755" }
+    - { path: "/var/log/infra-monitor", owner: "infra-monitor", group: "infra-monitor", mode: "0755" }
+
+- name: Copy the tested application source
+  copy:
+    src: "{{ playbook_dir }}/../{{ item }}"
+    dest: /opt/infra-monitor/
+    owner: infra-monitor
+    group: infra-monitor
+    mode: preserve
+  loop:
+    - backend
+    - frontend
+  notify: restart infra monitor
+
+- name: Fix ownership of app directory
+  file:
+    path: /opt/infra-monitor
+    owner: infra-monitor
+    group: infra-monitor
+    recurse: yes
+    state: directory
+  become: yes
+
+- name: Ensure application path ownership is correct
+  file:
+    path: /opt/infra-monitor
+    state: directory
+    recurse: true
+    owner: infra-monitor
+    group: infra-monitor
+
+- name: Install Python dependencies
+  pip:
+    requirements: /opt/infra-monitor/backend/requirements.txt
+    virtualenv: /opt/infra-monitor/venv
+    virtualenv_python: python3
+  notify: restart infra monitor
+
+- name: Create environment file
+  no_log: true
+  template:
+    src: env.j2
+    dest: /opt/infra-monitor/backend/.env
+    mode: "0600"
+    owner: infra-monitor
+    group: infra-monitor
+  notify: restart infra monitor
+
+- name: Install systemd service file
+  template:
+    src: infra-monitor.service.j2
+    dest: /etc/systemd/system/infra-monitor.service
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart infra monitor
+
+- name: Start Flask app service
+  systemd:
+    name: infra-monitor
+    enabled: true
+    state: started

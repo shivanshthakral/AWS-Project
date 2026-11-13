@@ -1,0 +1,3 @@
+flask_secret_key: REPLACE_WITH_A_RANDOM_SECRET
+database_url: mysql+pymysql://admin:REPLACE_WITH_PASSWORD@REPLACE_WITH_RDS_ENDPOINT/infra_monitor
+cloudwatch_log_group: /infra-monitor/application

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Login | AWS Infrastructure Monitor{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <section class="auth-card">
+        <header class="auth-header">
+            <p>AWS Infrastructure Monitor</p>
+            <h1>Sign in to your account</h1>
+        </header>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('auth.login') }}" class="stack">
+            <label>Username
+                <input name="username" required>
+            </label>
+            <label>Password
+                <input type="password" name="password" required>
+            </label>
+            <button class="btn" type="submit">Sign In</button>
+        </form>
+
+        <hr class="divider">
+
+        <h3>Create an account</h3>
+        <form id="register-form" class="stack">
+            <label>Username
+                <input name="username" required>
+            </label>
+            <label>Email
+                <input type="email" name="email" required>
+            </label>
+            <label>Password
+                <input type="password" name="password" required>
+            </label>
+            <button class="btn" type="submit">Create Account</button>
+        </form>
+        <p id="register-message"></p>
+    </section>
+</section>
+
+<script>
+document.getElementById("register-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const body = {
+        username: form.username.value,
+        email: form.email.value,
+        password: form.password.value,
+    };
+
+    const response = await fetch("{{ url_for('auth.register') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    const message = document.getElementById("register-message");
+    message.textContent = data.message || data.error;
+    message.className = response.ok ? "success" : "error";
+});
+</script>
+{% endblock %}

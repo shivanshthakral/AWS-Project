@@ -1,0 +1,19 @@
+[Unit]
+Description=AWS Infrastructure Monitor Flask App
+After=network.target
+
+[Service]
+User=infra-monitor
+Group=infra-monitor
+WorkingDirectory=/opt/infra-monitor/backend
+EnvironmentFile=/opt/infra-monitor/backend/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/opt/infra-monitor/venv/bin/python -c "from app import create_app; create_app()"
+ExecStart=/opt/infra-monitor/venv/bin/gunicorn --bind 127.0.0.1:5001 --workers 2 --access-logfile /var/log/infra-monitor/app.log --error-logfile /var/log/infra-monitor/error.log app:create_app()
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/infra-monitor/app.log
+StandardError=append:/var/log/infra-monitor/error.log
+
+[Install]
+WantedBy=multi-user.target

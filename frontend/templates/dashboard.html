@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | AWS Infrastructure Monitor{% endblock %}
+
+{% block content %}
+<section class="dashboard-page">
+    <header class="dashboard-head">
+        <div class="dashboard-title">
+            <h1>Infrastructure Dashboard</h1>
+            <p>Welcome back, {{ current_user.username }}. Monitor live EC2 health and instance metadata in one place.</p>
+        </div>
+        <button id="refresh-btn" class="btn btn-secondary" type="button">Refresh Data</button>
+    </header>
+
+    <section class="stats-grid">
+        <article class="metric-card metric-total"><h3>Total Instances</h3><p id="total-count">0</p></article>
+        <article class="metric-card metric-running"><h3>Running</h3><p id="running-count">0</p></article>
+        <article class="metric-card metric-stopped"><h3>Stopped</h3><p id="stopped-count">0</p></article>
+    </section>
+
+    <section class="table-card">
+        <div class="table-wrap">
+            <table id="resources-table">
+                <thead>
+                    <tr>
+                        <th>Instance ID</th>
+                        <th>Name</th>
+                        <th>State</th>
+                        <th>Region</th>
+                        <th>Public IP</th>
+                        <th>Instance Type</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

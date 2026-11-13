@@ -1,0 +1,21 @@
+---
+- name: Install Python packages on Debian family
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+      - git
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Python packages on RedHat family
+  yum:
+    name:
+      - python3
+      - python3-pip
+      - python3-virtualenv
+      - git
+    state: present
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+.pytest_cache/
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfplan
+*.pem
+.DS_Store
+.runtime/
+*.tfbackend
+*.auto.tfvars.json
+tfplan
+AWS_Infrastructure_Monitor_Project_Doc.docx
+ansible/vault.yml
