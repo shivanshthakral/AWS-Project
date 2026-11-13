@@ -92,6 +92,19 @@
     - reload systemd
     - restart infra monitor
 
+- name: Ensure application log files are writable by the service
+  file:
+    path: "/var/log/infra-monitor/{{ item }}"
+    state: touch
+    owner: infra-monitor
+    group: infra-monitor
+    mode: "0640"
+    access_time: preserve
+    modification_time: preserve
+  loop:
+    - app.log
+    - error.log
+
 - name: Start Flask app service
   systemd:
     name: infra-monitor
