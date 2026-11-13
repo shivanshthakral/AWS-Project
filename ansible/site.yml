@@ -2,6 +2,7 @@
 - name: Configure and deploy AWS Infrastructure Monitor
   hosts: app_servers
   become: true
+  gather_facts: false
   vars_files:
     - "{{ deployment_vars_file | default('vault.yml') }}"
   pre_tasks:
@@ -11,6 +12,8 @@
     - name: Wait for cloud-init package installation
       command: cloud-init status --wait
       changed_when: false
+    - name: Gather server facts
+      setup:
   roles:
     - python
     - nginx

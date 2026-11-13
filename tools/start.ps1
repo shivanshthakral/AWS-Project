@@ -18,6 +18,7 @@ if (!(Test-Path backend/.env)) {
 if (!(Test-Path .runtime/jenkins-admin-password)) {
     New-LocalSecret | Set-Content .runtime/jenkins-admin-password -Encoding ascii
 }
+$ErrorActionPreference = 'Continue'
 if (Test-Path .runtime/github-connection.json) {
     docker compose --profile github up -d --build --wait --wait-timeout 900
 } else {

@@ -46,6 +46,7 @@ if ($existing) {
 if ($LASTEXITCODE -ne 0) { throw 'Could not configure the GitHub webhook.' }
 $hook = $hookJson | ConvertFrom-Json
 @{ repository = $Repository; hook_id = $hook.id; url = $hookUrl } | ConvertTo-Json | Set-Content .runtime/github-connection.json -Encoding ascii
+$ErrorActionPreference = 'Continue'
 docker compose up -d --build jenkins
 if ($LASTEXITCODE -ne 0) { throw 'Jenkins startup failed.' }
 docker compose restart jenkins
