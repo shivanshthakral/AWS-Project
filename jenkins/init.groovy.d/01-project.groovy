@@ -46,7 +46,7 @@ if (repositoryFile.exists()) {
     def secretFile = new File('/run/project/webhook-secret')
     if (secretFile.exists()) {
         saveCredential(new StringCredentialsImpl(CredentialsScope.GLOBAL, 'github-webhook-secret', 'GitHub webhook HMAC secret', Secret.fromString(secretFile.text.trim())))
-        def githubConfig = GitHubPluginConfig.get()
+        def githubConfig = jenkins.model.GlobalConfiguration.all().get(GitHubPluginConfig.class)
         githubConfig.setHookSecretConfigs([new HookSecretConfig('github-webhook-secret', 'SHA256')])
         githubConfig.save()
     }
