@@ -2,7 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 COPY backend/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN for attempt in 1 2 3; do \
+      pip install --retries 8 --timeout 60 -r /app/requirements.txt && break; \
+      if [ "$attempt" -eq 3 ]; then exit 1; fi; \
+      sleep 5; \
+    done \
+    && rm -rf /root/.cache/pip
 
 COPY backend /app
 COPY frontend /frontend

@@ -57,6 +57,10 @@
     requirements: /opt/infra-monitor/backend/requirements.txt
     virtualenv: /opt/infra-monitor/venv
     virtualenv_command: /usr/bin/python3 -m venv
+  register: dependency_install
+  retries: 3
+  delay: 5
+  until: dependency_install is succeeded
   notify: restart infra monitor
 
 - name: Create environment file
