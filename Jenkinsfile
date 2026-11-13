@@ -53,7 +53,8 @@ pipeline {
                     set +x
                     . /run/project/cloud.env
                     terraform -chdir=terraform init -reconfigure -input=false -backend-config=/run/project/backend.tfbackend
-                    terraform -chdir=terraform plan -input=false -var-file=/run/project/deploy.tfvars.json -out=tfplan
+                    SSH_IP=$(curl --fail --silent --retry 3 https://checkip.amazonaws.com | tr -d '\\r\\n')
+                    terraform -chdir=terraform plan -input=false -var-file=/run/project/deploy.tfvars.json "-var=ssh_allowed_cidr=$SSH_IP/32" -out=tfplan
                 '''
             }
         }
