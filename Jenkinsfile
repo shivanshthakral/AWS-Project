@@ -69,6 +69,7 @@ pipeline {
                     set +x
                     . /run/project/cloud.env
                     mkdir -p .deployment
+                    tar --exclude=__pycache__ --exclude=.pytest_cache --exclude=.env -czf .deployment/application.tar.gz backend frontend
                     terraform -chdir=terraform output -json > .deployment/outputs.json
                     .venv/bin/python tools/deploy_config.py .deployment/outputs.json /run/project .deployment
                     install -m 600 /run/project/deploy-key .deployment/deploy-key
@@ -91,6 +92,6 @@ pipeline {
         }
     }
     post {
-        always { sh 'rm -f .deployment/vars.json .deployment/deploy-key terraform/tfplan' }
+        always { sh 'rm -f .deployment/vars.json .deployment/deploy-key .deployment/application.tar.gz terraform/tfplan' }
     }
 }

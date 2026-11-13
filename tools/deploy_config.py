@@ -19,6 +19,7 @@ def main():
         "database_url": f"mysql+pymysql://admin:{password}@{endpoint}/infra_monitor",
         "cloudwatch_log_group": f"/{runtime['project_name']}/application",
         "aws_region": runtime["aws_region"],
+        "application_archive": str(destination_path.resolve() / "application.tar.gz"),
     }
     variables_path = destination_path / "vars.json"
     variables_path.write_text(json.dumps(variables))

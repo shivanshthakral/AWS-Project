@@ -23,7 +23,16 @@
     - { path: "/opt/infra-monitor", owner: "infra-monitor", group: "infra-monitor", mode: "0755" }
     - { path: "/var/log/infra-monitor", owner: "infra-monitor", group: "infra-monitor", mode: "0755" }
 
-- name: Copy the tested application source
+- name: Extract the tested application archive
+  unarchive:
+    src: "{{ application_archive }}"
+    dest: /opt/infra-monitor/
+    owner: infra-monitor
+    group: infra-monitor
+  when: application_archive is defined
+  notify: restart infra monitor
+
+- name: Copy application source for manual deployments
   copy:
     src: "{{ playbook_dir }}/../{{ item }}"
     dest: /opt/infra-monitor/
@@ -33,6 +42,7 @@
   loop:
     - backend
     - frontend
+  when: application_archive is not defined
   notify: restart infra monitor
 
 - name: Fix ownership of app directory
